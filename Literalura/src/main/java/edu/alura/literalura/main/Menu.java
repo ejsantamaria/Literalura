@@ -1,14 +1,28 @@
 package edu.alura.literalura.main;
 
+import edu.alura.literalura.model.AuthorEntity;
 import edu.alura.literalura.model.BookAPI;
+import edu.alura.literalura.repository.AuthorRepository;
+import edu.alura.literalura.repository.BookRepository;
+import edu.alura.literalura.service.AuthorService;
 import edu.alura.literalura.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class Menu {
 
-    static BookService bookService = new BookService();
+    static BookService bookService;
+    static AuthorService authorService;
+
+    public Menu(BookRepository bookRepository, AuthorRepository authorRepository){
+        bookService = new BookService(bookRepository, authorRepository);
+        authorService = new AuthorService(authorRepository);
+    }
 
     public void menu() {
         int option = 0;
@@ -29,20 +43,20 @@ public class Menu {
                     searchBookByTitle(title);
                     break;
                 case 2:
-                    //listBooks();
+                    listBooks();
                     break;
                 case 3:
-                    //listAuthors();
+                    listAuthors();
                     break;
                 case 4:
                     System.out.print("Ingrese el año: ");
                     int year = scanner.nextInt();
-                    //listAuthorsAliveInYear(year);
+                    listAuthorsAliveInYear(year);
                     break;
                 case 5:
                     System.out.print("Ingrese el idioma: ");
                     String language = scanner.nextLine();
-                    //listBooksByLanguage(language);
+                    listBooksByLanguage(language);
                     break;
                 case 0:
                     System.out.println("Saliendo...");
@@ -66,37 +80,28 @@ public class Menu {
         }
     }
 
-//    private static void listBooks() {
-//        System.out.println("--- Lista de Libros ---");
-//        for (Book book : books) {
-//            System.out.println(book);
-//        }
-//    }
-//
-//    private static void listAuthors() {
-//        System.out.println("--- Lista de Autores ---");
-//        for (Author author : authors) {
-//            System.out.println(author);
-//        }
-//    }
-//
-//    private static void listAuthorsAliveInYear(int year) {
-//        System.out.println("--- Autores vivos en el año " + year + " ---");
-//        for (Author author : authors) {
-//            if (author.getBirthYear() <= year && (author.getDeathYear() == 0 || author.getDeathYear() >= year)) {
-//                System.out.println(author);
-//            }
-//        }
-//    }
-//
-//    private static void listBooksByLanguage(String language) {
-//        System.out.println("--- Libros en idioma " + language + " ---");
-//        for (Book book : books) {
-//            if (book.getLanguages().contains(language)) {
-//                System.out.println(book);
-//            }
-//        }
-//    }
+    private static void listBooks() {
+        System.out.println(bookService.listBooks());
+    }
+
+    private static void listAuthors() {
+        List<AuthorEntity> arrayAuthors = authorService.findAuthors();
+        for (AuthorEntity author : arrayAuthors) {
+            System.out.println(author.toString());
+        }
+    }
+
+    private static void listAuthorsAliveInYear(int year) {
+        System.out.println("--- Autores vivos en el año " + year + " ---");
+        List<AuthorEntity> response = authorService.findAuthorByYearALive(year);
+        for (AuthorEntity author : response) {
+            System.out.println(author.toString());
+        }
+    }
+
+    private static void listBooksByLanguage(String language) {
+        System.out.println(bookService.listBooksByLanguage(language));
+    }
 
     private static void showMenu() {
         System.out.println("\n--- Sistema realizado por: Erick Santamaria 💻 ---");
